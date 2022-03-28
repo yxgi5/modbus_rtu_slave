@@ -4,7 +4,8 @@
 module uart_byte_tx #
 (
     parameter       CLK_FREQ   = 'd50000000, // 50MHz
-    parameter       BAUD_RATE  = 'd9600
+    parameter       BAUD_RATE  = 'd9600,
+    parameter       SLICE_MODE = 1'b0
 )
 (
     input           clk_in,			// system clock
@@ -84,6 +85,27 @@ begin
 	    else
         begin
 		    baud_rate_cnt <= 16'd0;
+        end
+    end
+end
+
+// generate bps_clk signal
+reg bps_clk;
+always @ (posedge clk_in or negedge rst_n_in)
+begin
+	if(!rst_n_in) 
+    begin
+		bps_clk <= 1'b0;
+    end
+	else
+    begin
+        if(baud_rate_cnt == (SLICE_MODE ? (BPS_PARAM>>1) : 16'd1) )  // 0.5T or 0T
+        begin
+		    bps_clk <= 1'b1;	
+        end
+	    else 
+        begin
+		    bps_clk <= 1'b0;
         end
     end
 end
