@@ -110,4 +110,45 @@ begin
     end
 end
 
+//bps counter
+reg [3:0] bps_cnt;
+always@(posedge clk_in or negedge rst_n_in)
+begin
+    if(!rst_n_in)	
+    begin
+	    bps_cnt <= 4'd0;
+    end
+    else
+    begin
+        if(tx_done)
+        begin
+	        bps_cnt <= 4'd0;
+        end
+        else if(bps_clk)
+        begin
+	        bps_cnt <= bps_cnt + 1'b1;
+        end
+        else
+        begin
+	        bps_cnt <= bps_cnt;
+        end
+    end
+end
+
+always@(posedge clk_in or negedge rst_n_in)
+begin
+    if(!rst_n_in)
+    begin
+	    tx_done <= 1'b0;
+    end
+    else if(bps_cnt == 4'd11)
+    begin
+	    tx_done <= 1'b1;
+    end
+    else
+    begin
+	    tx_done <= 1'b0;
+    end
+end
+
 endmodule
