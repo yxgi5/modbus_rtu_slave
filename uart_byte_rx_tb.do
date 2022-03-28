@@ -23,4 +23,4 @@ view structure
 view signals
 
 
-run 360us
+run 400us
