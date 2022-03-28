@@ -18,6 +18,11 @@ module uart_byte_rx #
 
 localparam BPS_PARAM = (CLK_FREQ/BAUD_RATE)>>4; // oversample by x16
 
+// sample sum registers, sum of 6 samples
+reg [2:0] rx_data_r [0:7];
+reg [2:0] START_BIT;
+reg [2:0] STOP_BIT;
+
 reg	rs232_rx0,rs232_rx1,rs232_rx2;	
 //Detect negedge of rs232_rx
 always @ (posedge clk_in or negedge rst_n_in) begin
@@ -115,7 +120,7 @@ begin
     end
     else
     begin
-        if(bps_cnt>=8'd160-8'd1)        // TODO: fixme
+        if(bps_cnt>=8'd159)        // TODO: fixme
         begin
 	        bps_cnt <= `UD 4'd0;
         end
@@ -146,6 +151,125 @@ begin
         begin
 		    rx_done <= 1'b0;
         end
+    end
+end
+
+
+		
+always@(posedge clk_in or negedge rst_n_in)
+begin
+	if(!rst_n_in)
+    begin
+		START_BIT = 3'd0;
+		rx_data_r[0] <= 3'd0;
+		rx_data_r[1] <= 3'd0;
+		rx_data_r[2] <= 3'd0;
+		rx_data_r[3] <= 3'd0;
+		rx_data_r[4] <= 3'd0;
+		rx_data_r[5] <= 3'd0;
+		rx_data_r[6] <= 3'd0;
+		rx_data_r[7] <= 3'd0;
+		STOP_BIT = 3'd0;
+	end
+	else
+    begin
+        if(bps_clk)
+        begin
+		    case(bps_cnt)
+			0:
+            begin
+				START_BIT = 3'd0;
+				rx_data_r[0] <= 3'd0;
+				rx_data_r[1] <= 3'd0;
+				rx_data_r[2] <= 3'd0;
+				rx_data_r[3] <= 3'd0;
+				rx_data_r[4] <= 3'd0;
+				rx_data_r[5] <= 3'd0;
+				rx_data_r[6] <= 3'd0;
+				rx_data_r[7] <= 3'd0;
+				STOP_BIT = 3'd0;			
+            end
+            // 160 bps_cnt from 0 to 159 in a byte, each bit has 16 bps_clk (0~15), 
+            // sample form 6 to 11 is the middle 6 of 16 bps_clk
+			6,7,8,9,10,11:
+            begin
+                START_BIT <= START_BIT + rs232_rx1;
+            end
+			22,23,24,25,26,27:
+            begin
+                rx_data_r[0] <= rx_data_r[0] + rs232_rx1;
+            end
+			38,39,40,41,42,43:
+            begin
+                rx_data_r[1] <= rx_data_r[1] + rs232_rx1;
+            end
+			54,55,56,57,58,59:
+            begin
+                rx_data_r[2] <= rx_data_r[2] + rs232_rx1;
+            end
+			70,71,72,73,74,75:
+            begin
+                rx_data_r[3] <= rx_data_r[3] + rs232_rx1;
+            end
+			86,87,88,89,90,91:
+            begin
+                rx_data_r[4] <= rx_data_r[4] + rs232_rx1;
+            end
+			102,103,104,105,106,107:
+            begin
+                rx_data_r[5] <= rx_data_r[5] + rs232_rx1;
+            end
+			118,119,120,121,122,123:
+            begin
+                rx_data_r[6] <= rx_data_r[6] + rs232_rx1;
+            end
+			134,135,136,137,138,139:
+            begin
+                rx_data_r[7] <= rx_data_r[7] + rs232_rx1;
+            end
+			150,151,152,153,154,155:
+            begin
+                STOP_BIT <= STOP_BIT + rs232_rx1;
+            end
+			default:
+			begin
+				START_BIT = START_BIT;
+				rx_data_r[0] <= rx_data_r[0];
+				rx_data_r[1] <= rx_data_r[1];
+				rx_data_r[2] <= rx_data_r[2];
+				rx_data_r[3] <= rx_data_r[3];
+				rx_data_r[4] <= rx_data_r[4];
+				rx_data_r[5] <= rx_data_r[5];
+				rx_data_r[6] <= rx_data_r[6];
+				rx_data_r[7] <= rx_data_r[7];
+				STOP_BIT = STOP_BIT;						
+			end
+		    endcase
+        end
+	end
+end
+
+always@(posedge clk_in or negedge rst_n_in)
+begin
+	if(!rst_n_in)
+    begin
+		rx_data <= 8'd0;
+    end
+	else
+    begin
+        if(bps_cnt >= 8'd159)
+        begin
+            // rx_data_r[x] has 3 width, actual sample sum range 0~6, rx_data_r[x][2] means sum/4
+            // if sum >=4 sample value == 1, else sum < 4 sample value == 0
+		    rx_data[0] <= rx_data_r[0][2];
+		    rx_data[1] <= rx_data_r[1][2];
+		    rx_data[2] <= rx_data_r[2][2];
+		    rx_data[3] <= rx_data_r[3][2];
+		    rx_data[4] <= rx_data_r[4][2];
+		    rx_data[5] <= rx_data_r[5][2];
+		    rx_data[6] <= rx_data_r[6][2];
+		    rx_data[7] <= rx_data_r[7][2];
+	    end
     end
 end
 
