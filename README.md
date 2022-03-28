@@ -2,11 +2,12 @@
 design a ip implements Modbus RTU slave sub function 03 04 06
 
 ## uart tx and uart rx
-todo
+done
 
 ## 3.5T slice
+done
 
-## slave address check
+## slave address and frame check
 
 ## checksum if slave address check pass
 
