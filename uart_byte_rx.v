@@ -23,17 +23,19 @@ reg [2:0] rx_data_r [0:7];
 reg [2:0] START_BIT;
 reg [2:0] STOP_BIT;
 
+reg [7:0] bps_cnt;
+
 reg	rs232_rx0,rs232_rx1,rs232_rx2;	
 //Detect negedge of rs232_rx
 always @ (posedge clk_in or negedge rst_n_in) begin
 	if(!rst_n_in) begin
-		rs232_rx0 <= 1'b0;
-		rs232_rx1 <= 1'b0;
-		rs232_rx2 <= 1'b0;
+		rs232_rx0 <= `UD 1'b0;
+		rs232_rx1 <= `UD 1'b0;
+		rs232_rx2 <= `UD 1'b0;
 	end else begin
-		rs232_rx0 <= rs232_rx;
-		rs232_rx1 <= rs232_rx0;
-		rs232_rx2 <= rs232_rx1;
+		rs232_rx0 <= `UD rs232_rx;
+		rs232_rx1 <= `UD rs232_rx0;
+		rs232_rx2 <= `UD rs232_rx1;
 	end
 end
 
@@ -43,21 +45,21 @@ always@(posedge clk_in or negedge rst_n_in)
 begin
 	if(!rst_n_in)
     begin
-		rx_state <= 1'b0;
+		rx_state <= `UD 1'b0;
     end
 	else
     begin
         if(neg_rs232_rx)
         begin
-            rx_state <= 1'b1;
+            rx_state <= `UD 1'b1;
         end
-	    else if(rx_done) // TODO: fixme
+	    else if(rx_done || (bps_cnt == 8'd12 && (START_BIT > 2))) // at least 3 of 6 samples are 1, START_BIT not ok
         begin
-		    rx_state <= 1'b0;
+		    rx_state <= `UD 1'b0;
         end
 	    else
         begin
-		    rx_state <= rx_state;
+		    rx_state <= `UD rx_state;
         end
     end
 end
@@ -67,7 +69,7 @@ always@(posedge clk_in or negedge rst_n_in)
 begin
     if(!rst_n_in)
     begin
-        baud_rate_cnt <= 16'd0;
+        baud_rate_cnt <= `UD 16'd0;
     end
     else
     begin
@@ -75,16 +77,16 @@ begin
         begin
             if(baud_rate_cnt >= BPS_PARAM - 1)
             begin
-                baud_rate_cnt <= 16'd0;
+                baud_rate_cnt <= `UD 16'd0;
             end
             else
             begin
-                baud_rate_cnt <= baud_rate_cnt + 1'b1;
+                baud_rate_cnt <= `UD baud_rate_cnt + 1'b1;
             end
         end
         else
         begin
-            baud_rate_cnt <= 16'd0;
+            baud_rate_cnt <= `UD 16'd0;
         end
     end
 end
@@ -111,7 +113,7 @@ begin
 end
 
 //bps counter
-reg [7:0] bps_cnt;
+
 always@(posedge clk_in or negedge rst_n_in)
 begin
     if(!rst_n_in)	
@@ -120,7 +122,7 @@ begin
     end
     else
     begin
-        if(bps_cnt>=8'd159)        // TODO: fixme
+        if(bps_cnt>=8'd159 || (bps_cnt == 8'd12 && (START_BIT > 2))) // at least 3 of 6 samples are 1, START_BIT not ok
         begin
 	        bps_cnt <= `UD 4'd0;
         end
@@ -139,17 +141,17 @@ always@(posedge clk_in or negedge rst_n_in)
 begin
 	if(!rst_n_in)
     begin
-		rx_done <= 1'b0;
+		rx_done <= `UD 1'b0;
     end
 	else
     begin
         if(bps_cnt == 8'd159)
         begin
-		    rx_done <= 1'b1;
+		    rx_done <= `UD 1'b1;
         end
 	    else
         begin
-		    rx_done <= 1'b0;
+		    rx_done <= `UD 1'b0;
         end
     end
 end
@@ -160,16 +162,16 @@ always@(posedge clk_in or negedge rst_n_in)
 begin
 	if(!rst_n_in)
     begin
-		START_BIT = 3'd0;
-		rx_data_r[0] <= 3'd0;
-		rx_data_r[1] <= 3'd0;
-		rx_data_r[2] <= 3'd0;
-		rx_data_r[3] <= 3'd0;
-		rx_data_r[4] <= 3'd0;
-		rx_data_r[5] <= 3'd0;
-		rx_data_r[6] <= 3'd0;
-		rx_data_r[7] <= 3'd0;
-		STOP_BIT = 3'd0;
+		START_BIT <= `UD 3'd0;
+		rx_data_r[0] <= `UD 3'd0;
+		rx_data_r[1] <= `UD 3'd0;
+		rx_data_r[2] <= `UD 3'd0;
+		rx_data_r[3] <= `UD 3'd0;
+		rx_data_r[4] <= `UD 3'd0;
+		rx_data_r[5] <= `UD 3'd0;
+		rx_data_r[6] <= `UD 3'd0;
+		rx_data_r[7] <= `UD 3'd0;
+		STOP_BIT <= `UD 3'd0;
 	end
 	else
     begin
@@ -178,71 +180,71 @@ begin
 		    case(bps_cnt)
 			0:
             begin
-				START_BIT = 3'd0;
-				rx_data_r[0] <= 3'd0;
-				rx_data_r[1] <= 3'd0;
-				rx_data_r[2] <= 3'd0;
-				rx_data_r[3] <= 3'd0;
-				rx_data_r[4] <= 3'd0;
-				rx_data_r[5] <= 3'd0;
-				rx_data_r[6] <= 3'd0;
-				rx_data_r[7] <= 3'd0;
-				STOP_BIT = 3'd0;			
+				START_BIT <= `UD 3'd0;
+				rx_data_r[0] <= `UD 3'd0;
+				rx_data_r[1] <= `UD 3'd0;
+				rx_data_r[2] <= `UD 3'd0;
+				rx_data_r[3] <= `UD 3'd0;
+				rx_data_r[4] <= `UD 3'd0;
+				rx_data_r[5] <= `UD 3'd0;
+				rx_data_r[6] <= `UD 3'd0;
+				rx_data_r[7] <= `UD 3'd0;
+				STOP_BIT <= `UD 3'd0;			
             end
             // 160 bps_cnt from 0 to 159 in a byte, each bit has 16 bps_clk (0~15), 
             // sample form 6 to 11 is the middle 6 of 16 bps_clk
 			6,7,8,9,10,11:
             begin
-                START_BIT <= START_BIT + rs232_rx1;
+                START_BIT <= `UD START_BIT + rs232_rx1;
             end
 			22,23,24,25,26,27:
             begin
-                rx_data_r[0] <= rx_data_r[0] + rs232_rx1;
+                rx_data_r[0] <= `UD rx_data_r[0] + rs232_rx1;
             end
 			38,39,40,41,42,43:
             begin
-                rx_data_r[1] <= rx_data_r[1] + rs232_rx1;
+                rx_data_r[1] <= `UD rx_data_r[1] + rs232_rx1;
             end
 			54,55,56,57,58,59:
             begin
-                rx_data_r[2] <= rx_data_r[2] + rs232_rx1;
+                rx_data_r[2] <= `UD rx_data_r[2] + rs232_rx1;
             end
 			70,71,72,73,74,75:
             begin
-                rx_data_r[3] <= rx_data_r[3] + rs232_rx1;
+                rx_data_r[3] <= `UD rx_data_r[3] + rs232_rx1;
             end
 			86,87,88,89,90,91:
             begin
-                rx_data_r[4] <= rx_data_r[4] + rs232_rx1;
+                rx_data_r[4] <= `UD rx_data_r[4] + rs232_rx1;
             end
 			102,103,104,105,106,107:
             begin
-                rx_data_r[5] <= rx_data_r[5] + rs232_rx1;
+                rx_data_r[5] <= `UD rx_data_r[5] + rs232_rx1;
             end
 			118,119,120,121,122,123:
             begin
-                rx_data_r[6] <= rx_data_r[6] + rs232_rx1;
+                rx_data_r[6] <= `UD rx_data_r[6] + rs232_rx1;
             end
 			134,135,136,137,138,139:
             begin
-                rx_data_r[7] <= rx_data_r[7] + rs232_rx1;
+                rx_data_r[7] <= `UD rx_data_r[7] + rs232_rx1;
             end
 			150,151,152,153,154,155:
             begin
-                STOP_BIT <= STOP_BIT + rs232_rx1;
+                STOP_BIT <= `UD STOP_BIT + rs232_rx1;
             end
 			default:
 			begin
-				START_BIT = START_BIT;
-				rx_data_r[0] <= rx_data_r[0];
-				rx_data_r[1] <= rx_data_r[1];
-				rx_data_r[2] <= rx_data_r[2];
-				rx_data_r[3] <= rx_data_r[3];
-				rx_data_r[4] <= rx_data_r[4];
-				rx_data_r[5] <= rx_data_r[5];
-				rx_data_r[6] <= rx_data_r[6];
-				rx_data_r[7] <= rx_data_r[7];
-				STOP_BIT = STOP_BIT;						
+				START_BIT <= `UD START_BIT;
+				rx_data_r[0] <= `UD rx_data_r[0];
+				rx_data_r[1] <= `UD rx_data_r[1];
+				rx_data_r[2] <= `UD rx_data_r[2];
+				rx_data_r[3] <= `UD rx_data_r[3];
+				rx_data_r[4] <= `UD rx_data_r[4];
+				rx_data_r[5] <= `UD rx_data_r[5];
+				rx_data_r[6] <= `UD rx_data_r[6];
+				rx_data_r[7] <= `UD rx_data_r[7];
+				STOP_BIT <= `UD STOP_BIT;						
 			end
 		    endcase
         end
@@ -253,7 +255,7 @@ always@(posedge clk_in or negedge rst_n_in)
 begin
 	if(!rst_n_in)
     begin
-		rx_data <= 8'd0;
+		rx_data <= `UD 8'd0;
     end
 	else
     begin
@@ -261,14 +263,14 @@ begin
         begin
             // rx_data_r[x] has 3 width, actual sample sum range 0~6, rx_data_r[x][2] means sum/4
             // if sum >=4 sample value == 1, else sum < 4 sample value == 0
-		    rx_data[0] <= rx_data_r[0][2];
-		    rx_data[1] <= rx_data_r[1][2];
-		    rx_data[2] <= rx_data_r[2][2];
-		    rx_data[3] <= rx_data_r[3][2];
-		    rx_data[4] <= rx_data_r[4][2];
-		    rx_data[5] <= rx_data_r[5][2];
-		    rx_data[6] <= rx_data_r[6][2];
-		    rx_data[7] <= rx_data_r[7][2];
+		    rx_data[0] <= `UD rx_data_r[0][2];
+		    rx_data[1] <= `UD rx_data_r[1][2];
+		    rx_data[2] <= `UD rx_data_r[2][2];
+		    rx_data[3] <= `UD rx_data_r[3][2];
+		    rx_data[4] <= `UD rx_data_r[4][2];
+		    rx_data[5] <= `UD rx_data_r[5][2];
+		    rx_data[6] <= `UD rx_data_r[6][2];
+		    rx_data[7] <= `UD rx_data_r[7][2];
 	    end
     end
 end
