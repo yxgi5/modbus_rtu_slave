@@ -13,7 +13,7 @@ module ct_1t_gen #
     input               rx_done,        // pos-pulse for 1 tick indicates 1 byte transfer done
     input               rx_state,
 
-    output  reg         rx_drop_byte       // if intervel >3.5T == 1
+    output  reg         rx_drop_byte       // if intervel >1T == 1
 );
 
 localparam BPS_PARAM = (CLK_FREQ/BAUD_RATE);
