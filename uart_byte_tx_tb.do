@@ -22,4 +22,4 @@ view structure
 view signals
 
 
-run 25ms
+run 360us
