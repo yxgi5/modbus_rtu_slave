@@ -124,7 +124,7 @@ begin
     begin
         if(bps_cnt>=8'd159 || (bps_cnt == 8'd12 && (START_BIT > 2))) // at least 3 of 6 samples are 1, START_BIT not ok
         begin
-	        bps_cnt <= `UD 4'd0;
+	        bps_cnt <= `UD 8'd0;
         end
         else if(bps_clk)
         begin

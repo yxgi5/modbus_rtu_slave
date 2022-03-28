@@ -47,6 +47,19 @@ uart_byte_rx #
     .rs232_rx       (UART_TX		)	// uart transfer pin
 );
 
+wire rx_new_frame;
+ct_35t_gen #
+(
+    .CLK_FREQ       ('d50000000     ),  // 50MHz system clock
+    .BAUD_RATE      ('d115200       )
+)ct_35t_gen_inst0
+(
+    .clk_in         (sys_clk        ),  // system clock
+    .rst_n_in       (reset_n        ),  // system reset, active low
+    .rx_done        (rx_done        ),  // transfer done
+    .rx_state       (rx_state       ),  // sending duration
+    .rx_new_frame   (rx_new_frame   )
+);
 
 initial sys_clk = 1;
 always #(`clk_period/2) sys_clk = ~sys_clk;
