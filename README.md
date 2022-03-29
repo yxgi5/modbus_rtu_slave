@@ -19,6 +19,4 @@ done
 ### illegal address return 02
 ### illegal quantity return 03
 
-## legal fuction code 03 | 06 return response frame
-### function code 03 recive handling
-### function code 03 trasnfer handling
+## legal fuction code 03 | 04 | 06 return response frame
