@@ -82,7 +82,7 @@ wire [15:0] data;
 wire [15:0] crc_rx_code;
 frame_rx #
 (
-    .ADDR           (8'h02          )
+    .ADDR           (8'h01          )
 )frame_rx_inst0
 (
     .clk_in         (sys_clk        ), // system clock
@@ -104,20 +104,37 @@ always #(`clk_period/2) sys_clk = ~sys_clk;
 initial reset_n = 0;
 always #(`clk_period*50) reset_n = 1'b1;
 
+reg [7:0]  FRAME   [0:7];
 reg TT;
 initial
 begin
     tx_start = 0;
     tx_data = 8'h0;
     test = 0;
-
+    
     #(`clk_period*50)
+    FRAME[0] = 8'h01;
+    FRAME[1] = 8'h03;
+    FRAME[2] = 8'h00;
+    FRAME[3] = 8'h01;
+    FRAME[4] = 8'h00;
+    FRAME[5] = 8'h01;
+    FRAME[6] = 8'hd5;
+    FRAME[7] = 8'hca;
     test = 1;
     #(`clk_period*1)
     test = 0;
 
     @(posedge TT)
     #(`clk_period*20000)
+    FRAME[0] = 8'h01;
+    FRAME[1] = 8'h06;
+    FRAME[2] = 8'h00;
+    FRAME[3] = 8'h01;
+    FRAME[4] = 8'h00;
+    FRAME[5] = 8'h05;
+    FRAME[6] = 8'h18;
+    FRAME[7] = 8'h09;
     test = 1;
     #(`clk_period*1)
     test = 0;
@@ -135,12 +152,16 @@ begin
 	//$stop;	
 end
 
-parameter   IDLE    = 5'b0_0001;
-parameter   TX_S0   = 5'b0_0010;
-parameter   TX_S1   = 5'b0_0100;
-parameter   TX_S2   = 5'b0_1000;
-parameter   TX_S3   = 5'b1_0000;
-reg [4:0]   state;
+parameter   IDLE    = 8'b0000_0000;
+parameter   TX_S0   = 8'b0000_0001;
+parameter   TX_S1   = 8'b0000_0010;
+parameter   TX_S2   = 8'b0000_0100;
+parameter   TX_S3   = 8'b0000_1000;
+parameter   TX_S4   = 8'b0001_0000;
+parameter   TX_S5   = 8'b0010_0000;
+parameter   TX_S6   = 8'b0100_0000;
+parameter   TX_S7   = 8'b1000_0000;
+reg [7:0]   state;
 reg FF;
 
 always @(posedge sys_clk or negedge reset_n)
@@ -174,7 +195,7 @@ begin
                 if(FF)
                 begin
                     tx_start <= 1'b1;
-                    tx_data <= 8'h02;
+                    tx_data <= FRAME[0];
                     FF<=1'b0;
                 end
                 else if(tx_done)
@@ -192,7 +213,7 @@ begin
                 if(FF)
                 begin
                     tx_start <= 1'b1;
-                    tx_data <= 8'hb3;
+                    tx_data <= FRAME[1];
                     FF<=1'b0;
                 end
                 else if(tx_done)
@@ -210,7 +231,7 @@ begin
                 if(FF)
                 begin
                     tx_start <= 1'b1;
-                    tx_data <= 8'ha4;
+                    tx_data <= FRAME[2];
                     FF<=1'b0;
                 end
                 else if(tx_done)
@@ -228,7 +249,79 @@ begin
                 if(FF)
                 begin
                     tx_start <= 1'b1;
-                    tx_data <= 8'h95;
+                    tx_data <= FRAME[3];
+                    FF<=1'b0;
+                end
+                else if(tx_done)
+                begin
+                    state <= TX_S4;
+                    FF<=1'b1;
+                end
+                else
+                begin
+                    tx_start <= 1'b0;
+                end
+            end
+        TX_S4:
+            begin
+                if(FF)
+                begin
+                    tx_start <= 1'b1;
+                    tx_data <= FRAME[4];
+                    FF<=1'b0;
+                end
+                else if(tx_done)
+                begin
+                    state <= TX_S5;
+                    FF<=1'b1;
+                end
+                else
+                begin
+                    tx_start <= 1'b0;
+                end
+            end
+        TX_S5:
+            begin
+                if(FF)
+                begin
+                    tx_start <= 1'b1;
+                    tx_data <= FRAME[5];
+                    FF<=1'b0;
+                end
+                else if(tx_done)
+                begin
+                    state <= TX_S6;
+                    FF<=1'b1;
+                end
+                else
+                begin
+                    tx_start <= 1'b0;
+                end
+            end
+        TX_S6:
+            begin
+                if(FF)
+                begin
+                    tx_start <= 1'b1;
+                    tx_data <= FRAME[6];
+                    FF<=1'b0;
+                end
+                else if(tx_done)
+                begin
+                    state <= TX_S7;
+                    FF<=1'b1;
+                end
+                else
+                begin
+                    tx_start <= 1'b0;
+                end
+            end
+        TX_S7:
+            begin
+                if(FF)
+                begin
+                    tx_start <= 1'b1;
+                    tx_data <= FRAME[7];
                     FF<=1'b0;
                 end
                 else if(tx_done)

@@ -19,9 +19,10 @@ vlog -vlog01compat -work work {./frame_rx_tb.v}
 vsim -voptargs="+acc" frame_rx_tb
 
 add wave -radix unsigned *
+add wave -position insertpoint sim:/frame_rx_tb/FRAME
 add wave -radix hexadecimal /frame_rx_tb/frame_rx_inst0/*
 #add wave -radix unsigned /frame_rx_tb/frame_rx_inst0/*
 view structure
 view signals
 
-run 5ms
+run 2300us
