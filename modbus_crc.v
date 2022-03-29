@@ -29,6 +29,7 @@ begin
         crc_reg <= `UD 16'b0;
         crc_done <= `UD 1'b0;
         crc_out <= `UD 16'b0;
+        data_buf <= `UD 48'b0;
     end
     else
     begin
