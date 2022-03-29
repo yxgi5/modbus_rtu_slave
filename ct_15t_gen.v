@@ -1,7 +1,7 @@
 `timescale 1ns / 1ns
 `define UD #1
 
-module ct_1t_gen #
+module ct_15t_gen #
 (
     parameter           CLK_FREQ   = 'd50000000,// 50MHz
     parameter           BAUD_RATE  = 'd9600    //
@@ -13,7 +13,7 @@ module ct_1t_gen #
     input               rx_done,        // pos-pulse for 1 tick indicates 1 byte transfer done
     input               rx_state,
 
-    output  reg         rx_drop_byte       // if intervel >1T == 1
+    output  reg         rx_drop_frame       // if intervel >1.5T == 1
 );
 
 localparam BPS_PARAM = (CLK_FREQ/BAUD_RATE);
@@ -32,7 +32,7 @@ begin
         begin
             cnt_en <= `UD 1'b1;
         end
-        else if(rx_state||bps_cnt>=6'd10)
+        else if(rx_state||bps_cnt>=6'd15)
         begin
             cnt_en <= `UD 1'b0;
         end
@@ -96,7 +96,7 @@ begin
     end
     else
     begin
-        if(bps_cnt>=6'd10)
+        if(bps_cnt>=6'd15)
         begin
 	        bps_cnt <= `UD 6'd0;
         end
@@ -125,17 +125,17 @@ always@(posedge clk_in or negedge rst_n_in)
 begin
     if(!rst_n_in)	
     begin
-	    rx_drop_byte <= `UD 1'b0;
+	    rx_drop_frame <= `UD 1'b0;
     end
     else
     begin
-        if(bps_cnt>=6'd10)
+        if(bps_cnt>=6'd15)
         begin
-	        rx_drop_byte <= `UD 1'b1;
+	        rx_drop_frame <= `UD 1'b1;
         end
         else
         begin
-	        rx_drop_byte <= `UD 1'b0;
+	        rx_drop_frame <= `UD 1'b0;
         end
     end
 end

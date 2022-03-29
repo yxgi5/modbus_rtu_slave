@@ -1,7 +1,7 @@
 `timescale 1ns / 1ns
 `define clk_period 20
 
-module ct_1t_gen_tb;
+module ct_15t_gen_tb;
 reg sys_clk;
 reg reset_n;
 
@@ -47,18 +47,18 @@ uart_byte_rx #
     .rs232_rx       (UART_TX		)	// uart transfer pin
 );
 
-wire rx_drop_byte;
-ct_1t_gen #
+wire rx_drop_frame;
+ct_15t_gen #
 (
     .CLK_FREQ       ('d50000000     ),  // 50MHz system clock
     .BAUD_RATE      ('d115200       )
-)ct_1t_gen_inst0
+)ct_15t_gen_inst0
 (
     .clk_in         (sys_clk        ),  // system clock
     .rst_n_in       (reset_n        ),  // system reset, active low
     .rx_done        (rx_done        ),  // transfer done
     .rx_state       (rx_state       ),  // sending duration
-    .rx_drop_byte   (rx_drop_byte   )
+    .rx_drop_frame  (rx_drop_frame   )
 );
 
 initial sys_clk = 1;
