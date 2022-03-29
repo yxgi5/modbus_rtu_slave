@@ -172,7 +172,7 @@ begin
             end
             else if( rx_done )
             begin
-                crc_rx_code[15:8] <= `UD rx_data;
+                crc_rx_code[7:0] <= `UD rx_data;
                 i <= `UD 7'd8;
             end 
             else 
@@ -187,7 +187,7 @@ begin
             end
             else if( rx_done )
             begin
-                crc_rx_code[7:0] <= `UD rx_data;
+                crc_rx_code[15:8] <= `UD rx_data;
                 i <= `UD 7'd9;
             end 
             else 
