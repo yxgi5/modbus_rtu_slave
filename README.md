@@ -21,11 +21,17 @@ done
 
 done
 
-# return response frame
+# read return response frame
 ## rs485 tx en signal (before tx 1T enable, after tx 1T disable)
 done
 ## tx crc
 done
 
-## legal fuction code 03 | 04 | 06
+# fuction code 06
+## write fail return 04
+## write ok response frame
+
+# read / write func logic
+
+
 
