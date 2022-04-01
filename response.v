@@ -50,6 +50,7 @@ begin
         tx_addr <= 8'h0;
         rs485_tx_data <= 8'h0;
         rs485_tx_start <= 1'b0;
+        response_done <= 1'b0;
     end
     else
     begin
@@ -64,6 +65,7 @@ begin
                 tx_addr <= 8'h0;
                 rs485_tx_data <= 8'h0;
                 rs485_tx_start <= 1'b0;
+                response_done <= 1'b0;
             end
             else
             begin
@@ -72,6 +74,7 @@ begin
                 tx_addr <= 8'h0;
                 rs485_tx_data <= 8'h0;
                 rs485_tx_start <= 1'b0;
+                response_done <= 1'b0;
             end
         end
         
@@ -87,6 +90,7 @@ begin
                 end
                 else
                 begin
+                    response_done <= 1'b1;
                     tx_state <= 2'd0;
                     FF <= 1'b1;
                 end
@@ -159,6 +163,7 @@ begin
             tx_addr <= 8'h0;
             rs485_tx_data <= 8'h0;
             rs485_tx_start <= 1'b0;
+            response_done <= 1'b0;
         end
         
         endcase
