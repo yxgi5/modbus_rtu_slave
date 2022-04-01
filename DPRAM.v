@@ -1,3 +1,6 @@
+`timescale 1ns / 1ns
+`define UD #1
+
 module DPRAM # 
 ( 
 	parameter   A_WIDTH     = 4,
@@ -46,13 +49,13 @@ begin
     begin
         if (WEA == 1'b1)
         begin
-            RAM[ADDRA] = DIA;
+            RAM[ADDRA] = `UD DIA;
         end
         //else
         //begin
-            //DOA <= RAM[ADDRA];
+            //DOA <= `UD RAM[ADDRA];
         //end
-        DOA = RAM[ADDRA];
+        DOA = `UD RAM[ADDRA];
     end
 end
 
@@ -65,13 +68,13 @@ begin
     begin
         if (WEB == 1'b1)
         begin
-            RAM[ADDRB] = DIB;
+            RAM[ADDRB] = `UD DIB;
         end
         //else
         //begin
-            //DOB <= RAM[ADDRB];
+            //DOB <= `UD RAM[ADDRB];
         //end
-        DOB = RAM[ADDRB];
+        DOB = `UD RAM[ADDRB];
     end
 end
 

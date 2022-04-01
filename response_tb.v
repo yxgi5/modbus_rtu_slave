@@ -13,7 +13,11 @@ reg tx_start;
 wire [15:0] tx_data;
 wire [7:0] tx_addr;
 wire response_done;
-response response_inst0
+response
+#(
+    .CLK_FREQ       ('d50000000     ),
+    .BAUD_RATE      ('d115200       )
+)response_inst0
 (
     .clk_in         (sys_clk        ),  // system clock
     .rst_n_in       (reset_n        ),  // system reset, active low

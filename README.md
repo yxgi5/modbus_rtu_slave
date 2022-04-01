@@ -22,6 +22,7 @@ done
 done
 
 # return response frame
+## rs485 tx en signal
 done
 
 ## legal fuction code 03 | 04 | 06
