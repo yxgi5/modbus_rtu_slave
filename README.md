@@ -25,6 +25,7 @@ done
 ## rs485 tx en signal (before tx 1T enable, after tx 1T disable)
 done
 ## tx crc
+done
 
 ## legal fuction code 03 | 04 | 06
 

@@ -123,7 +123,7 @@ begin
     end
     else
     begin
-        if(tx_done)
+        if(bps_cnt == 4'd11)
         begin
 	        bps_cnt <= `UD 4'd0;
         end

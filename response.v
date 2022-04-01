@@ -4,7 +4,8 @@
 module response #
 (
     parameter           CLK_FREQ   = 'd50000000,// 50MHz
-    parameter           BAUD_RATE  = 'd9600    //
+    parameter           BAUD_RATE  = 'd9600,   //
+    parameter           SADDR      = 8'h01
 )
 (
     input               clk_in,			// system clock
@@ -149,7 +150,7 @@ begin
     end
 end
 
-reg [2:0] tx_state;
+reg [3:0] tx_state;
 reg FF;
 reg [7:0]   rs485_tx_data;
 reg         rs485_tx_start;
@@ -170,11 +171,11 @@ begin
     else
     begin
         case(tx_state)
-        3'd0:
+        4'd0:
         begin
             if(tx_start_pos)
             begin
-                tx_state <= `UD 3'd1;
+                tx_state <= `UD 4'd1;
                 FF <= `UD 1'b1;
                 tx_addr <= `UD 8'h0;
                 tx_addr <= `UD 8'h0;
@@ -185,7 +186,7 @@ begin
             end
             else
             begin
-                tx_state <= `UD 3'd0;
+                tx_state <= `UD 4'd0;
                 FF <= `UD 1'b1;
                 tx_addr <= `UD 8'h0;
                 rs485_tx_data <= `UD 8'h0;
@@ -195,21 +196,21 @@ begin
             end
         end
         
-        3'd1:
+        4'd1:
         begin
             if(bps_cnt>=6'd10)
             begin
-                tx_state <= `UD 3'd2;
+                tx_state <= `UD 4'd2;
                 FF <= `UD 1'b1;
                 tx_addr <= `UD 8'h0;
                 tx_addr <= `UD 8'h0;
-                rs485_tx_data <= `UD 8'h0;
+                rs485_tx_data <= `UD SADDR;
                 rs485_tx_start <= `UD 1'b0;
                 response_done_r <= `UD 1'b0;
             end
             else
             begin
-                tx_state <= `UD 3'd1;
+                tx_state <= `UD 4'd1;
                 FF <= `UD 1'b1;
                 tx_addr <= `UD 8'h0;
                 rs485_tx_data <= `UD 8'h0;
@@ -218,7 +219,88 @@ begin
             end
         end
         
-        3'd2:
+        4'd2:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    tx_state <= `UD 4'd3;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD func_code;
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        
+        4'd3:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    tx_state <= `UD 4'd4;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD tx_quantity;
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        
+        4'd4:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    tx_state <= `UD 4'd5;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD 8'h0;
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        
+        4'd5:
         begin
             if(FF)
             begin
@@ -230,8 +312,8 @@ begin
                 end
                 else
                 begin
-                    response_done_r <= `UD 1'b1;
-                    tx_state <= `UD 3'd5;
+                    rs485_tx_data <= `UD crc_code[7:0];
+                    tx_state <= `UD 4'd8;
                     FF <= `UD 1'b1;
                 end
             end
@@ -239,12 +321,12 @@ begin
             begin
                 rs485_tx_data <= `UD tx_data[15:8];
                 //rs485_tx_start <= `UD 1'b1;
-                tx_state <= `UD 3'd3;
+                tx_state <= `UD 4'd6;
                 FF <= `UD 1'b1;
             end
         end
         
-        3'd3:
+        4'd6:
         begin
             if(FF)
             begin
@@ -255,7 +337,7 @@ begin
             begin
                 if(tx_done)
                 begin
-                    tx_state <= `UD 3'd4;
+                    tx_state <= `UD 4'd7;
                     FF <= `UD 1'b1;
                 end
                 else
@@ -266,7 +348,7 @@ begin
             end
         end
         
-        3'd4:
+        4'd7:
         begin
             if(FF)
             begin
@@ -285,22 +367,70 @@ begin
                     if(tx_addr < tx_quantity)
                     begin
                         tx_addr <= `UD tx_addr + 1'b1;
-                        tx_state <= `UD 3'd2;
+                        tx_state <= `UD 4'd5;
                     end
                     else
                     begin
-                        tx_state <= `UD 3'd5;
+                        tx_state <= `UD 4'd8;
+                        rs485_tx_data <= `UD crc_code[7:0];
                     end
                     FF <= `UD 1'b1;
                 end
             end
         end
         
-        3'd5:
+        4'd8:
+        begin
+            if(FF)
+            begin
+                FF <= `UD 1'b0;
+                rs485_tx_start <= `UD 1'b1;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    tx_state <= `UD 4'd9;
+                    rs485_tx_data <= `UD crc_code[15:8];
+                    FF <= `UD 1'b1;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        
+        4'd9:
+        begin
+            if(FF)
+            begin
+                FF <= `UD 1'b0;
+                rs485_tx_start <= `UD 1'b1;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    tx_state <= `UD 4'd10;
+                    rs485_tx_data <= `UD 8'h0;
+                    response_done_r <= `UD 1'b1;
+                    FF <= `UD 1'b1;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        
+        4'd10:
         begin
             if(bps_cnt>=6'd10)
             begin
-                tx_state <= `UD 3'd0;
+                tx_state <= `UD 4'd0;
                 FF <= `UD 1'b1;
                 tx_addr <= `UD 8'h0;
                 rs485_tx_data <= `UD 8'h0;
@@ -311,7 +441,7 @@ begin
             end
             else
             begin
-                tx_state <= `UD 3'd5;
+                //tx_state <= `UD 4'd10;
                 FF <= `UD 1'b1;
                 tx_addr <= `UD 8'h0;
                 rs485_tx_data <= `UD 8'h0;
@@ -322,7 +452,7 @@ begin
         
         default:
         begin
-            tx_state <= `UD 3'd0;
+            tx_state <= `UD 4'd0;
             FF <= `UD 1'b1;
             tx_addr <= `UD 8'h0;
             rs485_tx_data <= `UD 8'h0;

@@ -36,7 +36,8 @@ wire response_done;
 response
 #(
     .CLK_FREQ       ('d50000000     ),
-    .BAUD_RATE      ('d115200       )
+    .BAUD_RATE      ('d115200       ),
+    .SADDR          (8'h01          )
 )response_inst0
 (
     .clk_in         (sys_clk        ),  // system clock
