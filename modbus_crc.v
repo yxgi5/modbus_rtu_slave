@@ -16,7 +16,7 @@ module modbus_crc #
     output  reg [15:0]  crc_out
 );
 
-reg [8*BYTES:0] data_buf;
+reg [8*BYTES-1:0] data_buf;
 reg [7:0] ct_frame;
 reg [3:0] ct_8bit;
 reg [7:0] i;
