@@ -19,4 +19,10 @@ done
 ### illegal address return 02
 ### illegal quantity return 03
 
-## legal fuction code 03 | 04 | 06 return response frame
+done
+
+# return response frame
+done
+
+## legal fuction code 03 | 04 | 06
+
