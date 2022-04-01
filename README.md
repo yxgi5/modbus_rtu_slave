@@ -22,7 +22,7 @@ done
 done
 
 # return response frame
-## rs485 tx en signal
+## rs485 tx en signal (before tx 1T enable, after tx 1T disable)
 done
 
 ## legal fuction code 03 | 04 | 06
