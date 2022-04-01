@@ -1,19 +1,22 @@
 `timescale 1ns / 1ns
 `define UD #1
 
-module modbus_crc
+module modbus_crc #
+(
+    parameter           BYTES   = 'd6
+)
 (
     input               clk_in,			// system clock
     input               rst_n_in,		// system reset, active low
     
-    input   [47:0]      data_in,
+    input   [8*BYTES-1:0]      data_in,
     input               rx_message_done,
     
     output  reg         crc_done,
     output  reg [15:0]  crc_out
 );
 
-reg [47:0] data_buf;
+reg [8*BYTES:0] data_buf;
 reg [7:0] ct_frame;
 reg [3:0] ct_8bit;
 reg [7:0] i;
@@ -29,7 +32,7 @@ begin
         crc_reg <= `UD 16'b0;
         crc_done <= `UD 1'b0;
         crc_out <= `UD 16'b0;
-        data_buf <= `UD 48'b0;
+        data_buf <= `UD {(8*BYTES) {1'b0}} ;
     end
     else
     begin
@@ -45,7 +48,7 @@ begin
         end 
         7'd1 :
         begin
-            data_buf <= `UD {data_in[7:0],data_in[15:8],data_in[23:16],data_in[31:24],data_in[39:32],data_in[47:40]};
+            data_buf <= `UD data_in;
             crc_reg <= `UD 16'hffff;
             i <= `UD 7'd2;
         end
