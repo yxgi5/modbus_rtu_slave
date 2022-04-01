@@ -13,6 +13,7 @@ module response #
     input               tx_start,
     input   [7:0]       func_code,
     input   [7:0]       tx_quantity,
+    input   [15:0]      crc_code,
     input   [15:0]      tx_data,
     
     output  reg [7:0]   tx_addr,
@@ -260,7 +261,7 @@ begin
                 else
                 begin
                     rs485_tx_start <= `UD 1'b0;
-                    FF <= `UD 1'b1;
+                    FF <= `UD 1'b0;
                 end
             end
         end

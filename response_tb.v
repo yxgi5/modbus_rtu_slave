@@ -9,9 +9,29 @@ reg reset_n;
 wire rs485_tx;
 wire rs485_tx_en;
 
-reg tx_start;
+
+reg crc_start;
 wire [15:0] tx_data;
-wire [7:0] tx_addr;
+wire [7:0] tx_addr1;
+wire [15:0] crc_calc;
+wire crc_done;
+tx_crc
+#(
+    .SADDR          (8'h01          )
+)tx_crc_inst0
+(
+    .clk_in         (sys_clk        ),  // system clock
+    .rst_n_in       (reset_n        ),  // system reset, active low
+    .crc_start      (crc_start       ),
+    .func_code      (8'h04          ),
+    .tx_quantity    (8'h04          ),
+    .tx_data        (tx_data        ),
+    .tx_addr        (tx_addr1        ),
+    .crc_calc       (crc_calc       ),
+    .crc_done       (crc_done       )
+);
+
+wire [7:0] tx_addr2;
 wire response_done;
 response
 #(
@@ -21,11 +41,12 @@ response
 (
     .clk_in         (sys_clk        ),  // system clock
     .rst_n_in       (reset_n        ),  // system reset, active low
-    .tx_start       (tx_start       ),
+    .tx_start       (crc_done       ),
     .func_code      (8'h04          ),
     .tx_quantity    (8'h04          ),
+    .crc_code       (crc_calc       ),
     .tx_data        (tx_data        ),
-    .tx_addr        (tx_addr        ),
+    .tx_addr        (tx_addr2        ),
     .response_done  (response_done  ),
     .rs485_tx       (rs485_tx       ),
     .rs485_tx_en    (rs485_tx_en    )
@@ -48,7 +69,7 @@ DPRAM
     .WEA         (wea),
     .WEB         (1'd0),
     .ADDRA       (addra),
-    .ADDRB       (tx_addr),
+    .ADDRB       (tx_addr1|tx_addr2),
     .DIA         (dia),
     .DIB         (16'b0),
     .DOA         (),
@@ -67,7 +88,7 @@ begin
     wea = 1'b0;
     addra = 8'b0;
     dia = 16'h0000;
-    tx_start = 1'b0;
+    crc_start = 1'b0;
     
     #(`clk_period*50)
     wea = 1'b1;
@@ -111,9 +132,9 @@ begin
     dia = 16'h4782;
     
     #(`clk_period*15)
-    tx_start = 1'b1;
+    crc_start = 1'b1;
     #(`clk_period*1)
-    tx_start = 1'b0;
+    crc_start = 1'b0;
 end
 
 

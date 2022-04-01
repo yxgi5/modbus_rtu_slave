@@ -10,6 +10,7 @@ vmap work rtl_work
 vlog -vlog01compat -work work {./uart_byte_tx.v}
 #vlog -vlog01compat -work work {./modbus_crc.v}
 vlog -vlog01compat -work work {./DPRAM.v}
+vlog -vlog01compat -work work {./tx_crc.v}
 vlog -vlog01compat -work work {./response.v}
 vlog -vlog01compat -work work {./response_tb.v}
 
@@ -19,6 +20,8 @@ vsim -voptargs="+acc" response_tb
 
 add wave -radix unsigned *
 add wave -radix hexadecimal /response_tb/response_inst0/*
+add wave -radix hexadecimal /response_tb/tx_crc_inst0/*
+add wave -radix hexadecimal /response_tb/DPRAM_inst0/*
 add wave -radix hexadecimal /response_tb/response_inst0/uart_byte_tx_inst0/*
 add wave -radix hexadecimal /response_tb/DPRAM_inst0/RAM
 #add wave -radix unsigned /response_tb/response_inst0/*
