@@ -103,7 +103,7 @@ modbus_crc modbus_crc_inst0
 (
     .clk_in         (sys_clk        ), // system clock
     .rst_n_in       (reset_n        ), // system reset, active low
-    .data_in        ({8'h01,func_code,addr,data}),
+    .data_in        ({data[7:0],data[15:8],addr[7:0],addr[15:8],func_code,8'h01}),
     .rx_message_done(rx_message_done),
     .crc_done       (crc_done       ),
     .crc_out        (crc_rx_calc    )
