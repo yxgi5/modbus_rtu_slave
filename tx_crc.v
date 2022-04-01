@@ -173,6 +173,7 @@ begin
                     end
                     else
                     begin
+                        tx_addr <= `UD 8'b0;
                         data_buf <= `UD 8'b0;
                     end
                 end
@@ -186,7 +187,7 @@ begin
                     end
                     else
                     begin
-                        tx_addr <= `UD tx_addr+1'b1;
+                        tx_addr <= `UD 8'b0;
                         data_buf <= `UD 8'b0;
                         index <= `UD 8'd0;
                     end
