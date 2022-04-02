@@ -138,6 +138,10 @@ wire [7:0]   func_code_r;
 wire [15:0]  addr_r;
 wire [15:0]  data_r;
 wire [15:0]  crc_rx_code_r;
+wire         reg_wen;
+wire [15:0]  reg_wdat;
+reg          reg_w_done;
+reg          reg_w_status;
 func_hander #
 (
     .SADDR           (8'h01          )
@@ -167,6 +171,10 @@ func_hander #
     .dpram_wen      (wea            ),
     .dpram_addr     (addra          ),
     .dpram_wdata    (dia            ),
+    .reg_wen        (reg_wen        ),
+    .reg_wdat       (reg_wdat       ),
+    .reg_w_done     (reg_w_done     ),
+    .reg_w_status   (reg_w_status   ),
     .handler_done   (handler_done   )
 );
 
@@ -195,6 +203,26 @@ always #(`clk_period/2) sys_clk = ~sys_clk;
 
 initial reset_n = 0;
 always #(`clk_period*50) reset_n = 1'b1;
+
+initial
+begin
+    reg_w_done = 1'b0;
+    reg_w_status = 1'b0;
+    
+    @(posedge reg_wen)
+    #(`clk_period*2000)
+    reg_w_done = 1'b1;
+    reg_w_status = 1'b1;
+    #(`clk_period*1)
+    reg_w_done = 1'b0;
+    reg_w_status = 1'b0;
+    
+    @(posedge reg_wen)
+    #(`clk_period*2000)
+    reg_w_done = 1'b1;
+    #(`clk_period*1)
+    reg_w_done = 1'b0;
+end
 
 reg [7:0]  FRAME   [0:7];
 reg TT;
@@ -249,6 +277,34 @@ begin
     FRAME[5] = 8'h04;
     FRAME[6] = 8'ha0;
     FRAME[7] = 8'h09;
+    test = 1;
+    #(`clk_period*1)
+    test = 0;
+    
+    @(posedge TT)
+    #(`clk_period*20000)
+    FRAME[0] = 8'h01;
+    FRAME[1] = 8'h06;
+    FRAME[2] = 8'h00;
+    FRAME[3] = 8'h01;
+    FRAME[4] = 8'h00;
+    FRAME[5] = 8'h03;
+    FRAME[6] = 8'h98;
+    FRAME[7] = 8'h0b;
+    test = 1;
+    #(`clk_period*1)
+    test = 0;
+    
+        @(posedge TT)
+    #(`clk_period*20000)
+    FRAME[0] = 8'h01;
+    FRAME[1] = 8'h06;
+    FRAME[2] = 8'h00;
+    FRAME[3] = 8'h01;
+    FRAME[4] = 8'h00;
+    FRAME[5] = 8'h07;
+    FRAME[6] = 8'h99;
+    FRAME[7] = 8'hc8;
     test = 1;
     #(`clk_period*1)
     test = 0;

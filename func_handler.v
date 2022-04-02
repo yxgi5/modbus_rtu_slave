@@ -36,6 +36,12 @@ module func_hander #
     output  reg         dpram_wen,
     output  reg [7:0]   dpram_addr,
     output  reg [15:0]  dpram_wdata,
+    
+    output  reg         reg_wen,
+    output  reg [15:0]  reg_wdat,
+    input               reg_w_done,
+    input               reg_w_status,
+    
     output  reg         handler_done
    
     
@@ -86,10 +92,10 @@ begin
         begin
             exception_in_r <= `UD exception_in;
         end
-        else if(handler_done)
-        begin
-            exception_in_r <= `UD 8'h0;
-        end
+//        else if(handler_done)
+//        begin
+//            exception_in_r <= `UD 8'h0;
+//        end
     end
 end
 
@@ -115,6 +121,8 @@ begin
         dpram_addr <= `UD 8'h0;
         dpram_wdata <= `UD 16'h0;
         raddr_index <= `UD 16'h0;
+        reg_wen     <= `UD 1'b0;
+        reg_wdat    <= `UD 16'h0;
     end
     else
     begin
@@ -125,15 +133,18 @@ begin
             begin
                 if(exception_in==8'd1)
                 begin
-                    //op_state <= `UD 8'd0;
+                    op_state <= `UD 8'd5;
+                    exception_out <= `UD exception_in;
                 end
                 else if(exception_in==8'd2)
                 begin
-                    //op_state <= `UD 8'd0;
+                    op_state <= `UD 8'd5;
+                    exception_out <= `UD exception_in;
                 end
                 else if(exception_in==8'd3)
                 begin
-                    //op_state <= `UD 8'd0;
+                    op_state <= `UD 8'd5;
+                    exception_out <= `UD exception_in;
                 end
                 else if(exception_in==8'd0)
                 begin
@@ -149,11 +160,13 @@ begin
                 sub_state_06 <= `UD 8'h0;
                 handler_done <= `UD 1'b0;
 //                tx_quantity <= `UD 8'h0;
-                exception_out <= `UD 8'h0;
+                //exception_out <= `UD 8'h0;
                 dpram_wen  <= `UD 1'b0;
                 dpram_addr <= `UD 8'h0;
                 dpram_wdata <= `UD 16'h0;
                 raddr_index <= `UD 16'h0;
+                reg_wen     <= `UD 1'b0;
+                reg_wdat    <= `UD 16'h0;
             end
         end
         8'd1: // normal handler start
@@ -161,10 +174,12 @@ begin
             if(func_code==8'h03)
             begin
                 op_state <= `UD 8'd2;
+                exception_out <= `UD exception_in_r;
             end
             else if(func_code==8'h04)
             begin
                 op_state <= `UD 8'd3;
+                exception_out <= `UD exception_in_r;
             end
             else if(func_code==8'h06)
             begin
@@ -260,7 +275,56 @@ begin
         end
         8'd4:
         begin
-            // TODO:
+            if(FF)
+            begin
+                FF <= `UD 1'b0;
+                sub_state_06 <= `UD 8'd0;
+                reg_wen <= `UD 1'b1;
+                reg_wdat <= `UD data_r;
+            end
+            else
+            begin
+                case(sub_state_06)
+                8'd0:
+                begin
+                    if(addr_r==16'h00001)
+                    begin
+                        reg_wen <= `UD 1'b0;
+                        sub_state_06 <= `UD 8'd1;
+                    end
+                    else
+                    begin
+                        op_state <= `UD 8'd0;
+                        FF <= `UD 1'b1;
+                    end
+                end
+                8'd1:
+                begin
+                    if(reg_w_done)
+                    begin
+                        if(reg_w_status) // write failed
+                        begin
+                            exception_out <= `UD 8'h04;
+                            op_state <= `UD 8'd5;
+                            sub_state_06 <= `UD 8'd0;
+                            FF <= `UD 1'b1;
+                        end
+                        else
+                        begin
+                            exception_out <= `UD exception_in_r;
+                            op_state <= `UD 8'd5;
+                            sub_state_06 <= `UD 8'd0;
+                            FF <= `UD 1'b1;
+                        end
+                    end
+                end
+                default:
+                begin
+                    FF <= `UD 1'b1;
+                    sub_state_06 <= `UD 8'd0;
+                end
+                endcase
+            end
         end
         
         8'd5:
