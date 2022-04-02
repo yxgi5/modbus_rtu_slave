@@ -21,7 +21,7 @@ done
 
 done
 
-# read return response frame
+# read response frame
 ## rs485 tx en signal (before tx 1T enable, after tx 1T disable)
 done
 ## tx crc

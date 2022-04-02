@@ -1,7 +1,8 @@
 `timescale 1ns / 1ns
 `define clk_period 20
 
-module exceptions_tb;
+module func_handler_tb;
+
 reg sys_clk;
 reg reset_n;
 
@@ -126,6 +127,69 @@ exceptions exceptions_inst0
     .exception      (exception      )
 );
 
+wire    handler_done;
+wire [15:0]  dia;
+wire         wea;
+wire [7:0]   addra;
+wire [7:0]   tx_quantity;
+//wire         tx485_start;
+wire [7:0]   exception_out;
+wire [7:0]   func_code_r;
+wire [15:0]  addr_r;
+wire [15:0]  data_r;
+wire [15:0]  crc_rx_code_r;
+func_hander #
+(
+    .SADDR           (8'h01          )
+)func_handler_inst0
+(
+    .clk_in         (sys_clk        ), // system clock
+    .rst_n_in       (reset_n        ), // system reset, active low
+    .rx_message_done(rx_message_done),
+    .func_code      (func_code      ),
+    .addr           (addr           ),
+    .data           (data           ),
+    .crc_rx_code    (crc_rx_code    ),
+    .exception_done (exception_done ),
+    .exception_in   (exception      ),
+    .read_03_01     (16'h0451       ),
+    .read_04_01     (16'h5347       ),
+    .read_04_02     (16'h7414       ),
+    .read_04_03     (16'h2021       ),
+    .read_04_04     (16'h0402       ),
+    .tx_quantity    (tx_quantity    ),
+//    .tx_start       (tx485_start    ),
+    .func_code_r    (func_code_r    ),
+    .addr_r         (addr_r         ),
+    .data_r         (data_r         ),
+    .crc_rx_code_r  (crc_rx_code_r  ),
+    .exception_out  (exception_out  ),
+    .dpram_wen      (wea            ),
+    .dpram_addr     (addra          ),
+    .dpram_wdata    (dia            ),
+    .handler_done   (handler_done   )
+);
+
+DPRAM
+#(
+    .A_WIDTH    ('d8),
+    .D_WIDTH    ('d16)
+)DPRAM_inst0
+(
+    .CLKA        (sys_clk),
+    .CLKB        (sys_clk),
+    .ENA         (1'd1),
+    .ENB         (1'd1),
+    .WEA         (wea),
+    .WEB         (1'd0),
+    .ADDRA       (addra),
+    .ADDRB       (),
+    .DIA         (dia),
+    .DIB         (16'b0),
+    .DOA         (),
+    .DOB         ()
+);
+
 initial sys_clk = 1;
 always #(`clk_period/2) sys_clk = ~sys_clk;
 
@@ -170,6 +234,20 @@ begin
     FRAME[4] = 8'h00;
     FRAME[5] = 8'h05;
     FRAME[6] = 8'he8;
+    FRAME[7] = 8'h09;
+    test = 1;
+    #(`clk_period*1)
+    test = 0;
+    
+    @(posedge TT)
+    #(`clk_period*20000)
+    FRAME[0] = 8'h01;
+    FRAME[1] = 8'h04;
+    FRAME[2] = 8'h00;
+    FRAME[3] = 8'h01;
+    FRAME[4] = 8'h00;
+    FRAME[5] = 8'h04;
+    FRAME[6] = 8'ha0;
     FRAME[7] = 8'h09;
     test = 1;
     #(`clk_period*1)
@@ -380,4 +458,3 @@ begin
 end
 
 endmodule
-
