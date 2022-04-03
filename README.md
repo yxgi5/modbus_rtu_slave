@@ -1,5 +1,13 @@
 # Modbus RTU Slave Pure RTL design for FPGA
-design a ip implements Modbus RTU slave sub function 03 04 06 on FPGA
+design a ip implements Modbus RTU slave sub function 03 04 06 on FPGA.
+
+Function code: 03 04 06
+
+Exception code: 01 02 03 04
+
+Function 03: ligal reg 0001, ligal quantiy 0001
+Function 04: ligal reg 0001~0004, ligal quantiy + ligal reg < 0005
+Function 06: ligal reg 0001, ligal data 0000~0017
 
 ## uart tx and uart rx
 done
@@ -25,7 +33,7 @@ done
 
 modbus_crc_tb.do
 
-## Exception handling
+## Exception handling (exclude 04)
 ### checksum mismatch then do nothing
 ### illegal fuction code retrun 01
 ### illegal address return 02
@@ -45,7 +53,7 @@ func_handler_tb.do
 ### rs485 tx en signal (before tx 1T enable, after tx 1T disable)
 ### tx crc
 ## fuction code 06
-### write fail return 04
+### write fail return Exception 04
 ### write ok response frame
 done
 
