@@ -135,16 +135,19 @@ begin
                 begin
                     op_state <= `UD 8'd5;
                     exception_out <= `UD exception_in;
+                    tx_quantity <= `UD 16'd0;
                 end
                 else if(exception_in==8'd2)
                 begin
                     op_state <= `UD 8'd5;
                     exception_out <= `UD exception_in;
+                    tx_quantity <= `UD 16'd0;
                 end
                 else if(exception_in==8'd3)
                 begin
                     op_state <= `UD 8'd5;
                     exception_out <= `UD exception_in;
+                    tx_quantity <= `UD 16'd0;
                 end
                 else if(exception_in==8'd0)
                 begin
@@ -306,6 +309,7 @@ begin
                         begin
                             exception_out <= `UD 8'h04;
                             op_state <= `UD 8'd5;
+                            tx_quantity <= `UD 16'd0;
                             sub_state_06 <= `UD 8'd0;
                             FF <= `UD 1'b1;
                         end
@@ -313,6 +317,7 @@ begin
                         begin
                             exception_out <= `UD exception_in_r;
                             op_state <= `UD 8'd5;
+                            tx_quantity <= `UD 16'd1;
                             sub_state_06 <= `UD 8'd0;
                             FF <= `UD 1'b1;
                         end
