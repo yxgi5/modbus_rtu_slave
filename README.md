@@ -9,7 +9,7 @@ Function 03: ligal reg 0001, ligal quantiy 0001
 
 Function 04: ligal reg 0001~0004, ligal quantiy + ligal reg < 0005
 
-Function 06: ligal reg 0001, ligal data 0000~0017
+Function 06: ligal reg 0001, ligal data 0000~0017, coresponding to Function 03 reg 0001
 
 ## uart tx and uart rx
 done
