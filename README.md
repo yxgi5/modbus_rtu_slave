@@ -35,10 +35,8 @@ done
 # read / write func logic
 done
 
-# top wrapper
-todo
-
 # wave
+tx_response_tb.do
 ## func_code 03
 ![](pic/rx_03_normal.jpg)
 assign code 03 reg 0001 value 0451
@@ -68,3 +66,7 @@ response is ok
 ![](pic/write_ok_response.jpg)
 response is ok
 
+# top wrapper
+done
+
+modbus_rtu_slave_top_tb.do

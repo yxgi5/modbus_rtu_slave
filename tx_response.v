@@ -23,6 +23,7 @@ module tx_response #
     
     input   [63:0]      code06_response,
     
+    output  reg [7:0]   rs485_tx_data,
     output  reg         response_done,
     output  wire        rs485_tx,
     output  reg         rs485_tx_en
@@ -46,7 +47,7 @@ reg [5:0] bps_cnt;
 reg cnt_en;
 reg response_done_r;
 
-reg [7:0]   rs485_tx_data;
+//reg [7:0]   rs485_tx_data;
 reg         rs485_tx_start;
 wire tx_done;
 
