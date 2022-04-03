@@ -30,8 +30,41 @@ done
 # fuction code 06
 ## write fail return 04
 ## write ok response frame
+done
 
 # read / write func logic
+done
 
+# top wrapper
+todo
 
+# wave
+## func_code 03
+![](pic/rx_03_normal.jpg)
+assign code 03 reg 0001 value 0451
+![](pic/repsonse_03_normal.jpg)
+response is ok
+
+## illegal exception response
+![](pic/illigal_reg.jpg)
+here 06 dosen't have reg 0002, so it's illegal
+![](pic/illigal_reg_response.jpg)
+response is ok
+
+## func_code 04
+![](pic/rx_04_normal.jpg)
+read 4 regs from 0001
+![](pic/repsonse_04_normal.jpg)
+response is ok
+
+## write fail exception
+![](pic/write_failed.jpg)
+after a write fail
+![](pic/write_failed_response.jpg)
+response is ok
+
+## write ok response
+![](pic/write_ok.jpg)
+![](pic/write_ok_response.jpg)
+response is ok
 
