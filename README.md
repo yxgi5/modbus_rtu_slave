@@ -1,5 +1,5 @@
-# Modbus RTU Slave
-design a ip implements Modbus RTU slave sub function 03 04 06
+# Modbus RTU Slave Pure RTL design for FPGA
+design a ip implements Modbus RTU slave sub function 03 04 06 on FPGA
 
 ## uart tx and uart rx
 done
