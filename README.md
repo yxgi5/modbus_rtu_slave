@@ -6,7 +6,9 @@ Function code: 03 04 06
 Exception code: 01 02 03 04
 
 Function 03: ligal reg 0001, ligal quantiy 0001
+
 Function 04: ligal reg 0001~0004, ligal quantiy + ligal reg < 0005
+
 Function 06: ligal reg 0001, ligal data 0000~0017
 
 ## uart tx and uart rx
