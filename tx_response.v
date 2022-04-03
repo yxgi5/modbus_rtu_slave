@@ -309,11 +309,51 @@ begin
         
         8'd2:
         begin
-            
+            if(FF)
+            begin
+                tx_start_pos <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                tx_start_pos <= `UD 1'b0;
+                if(bps_cnt>=6'd10)
+                begin
+                    rs485_tx_data <= `UD code06_response[63:56];
+                    FF <= `UD 1'b1;
+                    op_state <= `UD 8'd19;
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    FF <= `UD 1'b0;
+                end
+            end
         end
         8'd3:
         begin
-            
+            if(FF)
+            begin
+                tx_start_pos <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                tx_start_pos <= `UD 1'b0;
+                if(bps_cnt>=6'd10)
+                begin
+                    rs485_tx_data <= `UD exception_seq[39:32];
+                    FF <= `UD 1'b1;
+                    op_state <= `UD 8'd15;
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    FF <= `UD 1'b0;
+                end
+            end
         end
         8'd4: // start delay for 458 tx enable
         begin
@@ -570,7 +610,290 @@ begin
         end
         8'd15:
         begin
-            
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd16;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD exception_seq[31:24];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd16:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd17;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD exception_seq[23:16];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd17:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd18;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD exception_seq[15:8];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd18:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd13;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD exception_seq[7:0];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        
+        8'd19:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd20;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[55:48];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd20:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd21;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[47:40];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd21:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd22;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[39:32];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd22:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd23;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[31:24];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd23:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd24;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[23:16];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd24:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd25;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[15:8];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
+        end
+        8'd25:
+        begin
+            if(FF)
+            begin
+                rs485_tx_start <= `UD 1'b1;
+                FF <= `UD 1'b0;
+            end
+            else
+            begin
+                if(tx_done)
+                begin
+                    op_state <= `UD 8'd13;
+                    FF <= `UD 1'b1;
+                    tx_addr <= `UD 8'h0;
+                    tx_addr <= `UD 8'h0;
+                    rs485_tx_data <= `UD code06_response[7:0];
+                    rs485_tx_start <= `UD 1'b0;
+                    response_done_r <= `UD 1'b0;
+                end
+                else
+                begin
+                    rs485_tx_start <= `UD 1'b0;
+                    FF <= `UD 1'b0;
+                end
+            end
         end
         
         default:
