@@ -152,7 +152,7 @@ func_hander #
     .crc_rx_code    (crc_rx_code    ),
     .exception_done (exception_done ),
     .exception_in   (exception      ),
-    .read_03_01     (read_03_01_r   ),  // TODO:
+    .read_03_01     (read_03_01_r   ),
     .read_04_01     (read_04_01     ),
     .read_04_02     (read_04_02     ),
     .read_04_03     (read_04_03     ),
