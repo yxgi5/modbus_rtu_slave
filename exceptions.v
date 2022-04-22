@@ -140,7 +140,7 @@ begin
                         exception_done <= `UD 1'b1;
                         exception <= `UD 8'h02;
                     end
-                    else if(data>16'h0004)
+                    else// if(data>16'h0004)
                     begin
                         exception_done <= `UD 1'b1;
                         exception <= `UD 8'h03;

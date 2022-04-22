@@ -27,6 +27,7 @@ vsim -voptargs="+acc" modbus_rtu_slave_top_tb
 
 add wave -radix unsigned *
 add wave -radix hexadecimal /modbus_rtu_slave_top_tb/modbus_rtu_slave_top_inst0/*
+add wave -radix hexadecimal /modbus_rtu_slave_top_tb/modbus_rtu_slave_top_inst0/uart_byte_rx_inst0/*
 view structure
 view signals
 
