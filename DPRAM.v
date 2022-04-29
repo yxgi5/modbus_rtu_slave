@@ -38,7 +38,7 @@ reg     [D_WIDTH-1:0]       DOA;
 reg     [D_WIDTH-1:0]       DOB;
 
 
-reg [D_WIDTH-1:0] RAM [0:2**A_WIDTH-1];
+reg [D_WIDTH-1:0] RAM [0:2**A_WIDTH-1];//2的A_WIDTH次幂
 
 //--------------------------------------------------------------------------------
 //-- Schreiben/Lesen Port A

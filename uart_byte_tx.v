@@ -7,15 +7,15 @@ module uart_byte_tx #
     parameter       BAUD_RATE  = 'd9600    //
 )
 (
-    input           clk_in,			// system clock
-    input           rst_n_in,		// system reset, active low
+    input           clk     ,	// system clock
+    input           rst_n   ,	// system reset, active low
 
-    input           tx_start,       // start transfer with pos edge
-    input   [7:0]	tx_data,		// data need to transfer
+    input           tx_start,   // start transfer with pos edge
+    input   [7:0]	tx_data ,	// data need to transfer
 
-    output  reg     tx_state,       // sending duration
-    output	reg     tx_done,        // pos-pulse for 1 tick indicates 1 byte transfer done
-    output	reg		rs232_tx		// uart transfer pin
+    output  reg     tx_state,   // sending duration
+    output	reg     tx_done ,   // pos-pulse for 1 tick indicates 1 byte transfer done
+    output	reg		rs232_tx	// uart transfer pin
 );
 
 
@@ -27,24 +27,24 @@ localparam BPS_PARAM = CLK_FREQ/BAUD_RATE;
 reg tx_start_r0;
 reg tx_start_r1;
 wire tx_start_pos;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)
+    if(!rst_n)
     begin
         tx_start_r0 <= `UD 1'b0;
         tx_start_r1 <= `UD 1'b0;
     end
     else
     begin
-        tx_start_r1 <= `UD tx_start_r0;
         tx_start_r0 <= `UD tx_start;
+        tx_start_r1 <= `UD tx_start_r0;
     end
 end
 assign tx_start_pos = ~tx_start_r1 & tx_start_r0;
 
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)
+    if(!rst_n)
     begin
 	    tx_state <= `UD 1'b0;
     end
@@ -66,9 +66,9 @@ begin
 end
 
 reg [15:0]  baud_rate_cnt;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in)
+	if(!rst_n)
     begin
 		baud_rate_cnt <= `UD 16'd0;
     end
@@ -94,9 +94,9 @@ end
 
 // generate bps_clk signal
 reg bps_clk;
-always @ (posedge clk_in or negedge rst_n_in)
+always @ (posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in) 
+	if(!rst_n) 
     begin
 		bps_clk <= `UD 1'b0;
     end
@@ -115,9 +115,9 @@ end
 
 //bps counter
 reg [3:0] bps_cnt;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)	
+    if(!rst_n)	
     begin
 	    bps_cnt <= `UD 4'd0;
     end
@@ -138,9 +138,9 @@ begin
     end
 end
 
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)
+    if(!rst_n)
     begin
 	    tx_done <= `UD 1'b0;
     end
@@ -155,9 +155,9 @@ begin
 end
 
 reg [7:0] tx_data_r;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)
+    if(!rst_n)
     begin
 	    tx_data_r <= `UD 8'b0;
     end
@@ -174,9 +174,9 @@ begin
     end
 end
 
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)
+    if(!rst_n)
     begin
 	    rs232_tx <= `UD 1'b1;
     end

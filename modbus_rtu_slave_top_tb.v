@@ -23,8 +23,8 @@ uart_byte_tx #
     .BAUD_RATE      ('d115200       )
 )uart_byte_tx_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .tx_start       (tx_start       ),	// start with pos edge
     .tx_data        (tx_data        ),	// data need to transfer
     .tx_done        (tx_done        ),  // transfer done
@@ -35,16 +35,17 @@ uart_byte_tx #
 wire    [15:0]  reg_03_01_o;
 wire            reg_03_01_update;
 wire            response_done;
+reg     [7:0]   dev_addr;
 modbus_rtu_slave_top #
 (
     .CLK_FREQ       ('d50000000     ),  // 50MHz system clock
-    .BAUD_RATE      ('d115200       ),
-    .SADDR          (8'h01          )
+    .BAUD_RATE      ('d115200       )
 )modbus_rtu_slave_top_inst0
 (
-    .clk_in                 (sys_clk            ),			// system clock
-    .rst_n_in               (reset_n            ),		// system reset, active low
-    
+    .clk                    (sys_clk            ),			// system clock
+    .rst_n                  (reset_n            ),		// system reset, active low
+
+    .dev_addr               (dev_addr           ),//改的有问题
     .read_04_01             (16'h5347           ),
     .read_04_02             (16'h7414           ),
     .read_04_03             (16'h2021           ),
@@ -66,293 +67,115 @@ always #(`clk_period/2) sys_clk = ~sys_clk;
 initial reset_n = 0;
 always #(`clk_period*50) reset_n = 1'b1;
 
-reg [7:0]  FRAME   [0:7];
-reg TT;
 initial
 begin
     tx_start = 0;
     tx_data = 8'h0;
     test = 0;
-    
     #(`clk_period*50)
-    FRAME[0] = 8'h01;
-    FRAME[1] = 8'h03;
-    FRAME[2] = 8'h00;
-    FRAME[3] = 8'h01;
-    FRAME[4] = 8'h00;
-    FRAME[5] = 8'h01;
-    FRAME[6] = 8'hd5;
-    FRAME[7] = 8'hca;
-    test = 1;
-    #(`clk_period*1)
-    test = 0;
-
+    dev_addr = 8'hf0;//变换设备地址
+    send_frame(64'hf0_03_0001_0001_c0eb);
     @(posedge response_done)
-    #(`clk_period*20000)
-//    FRAME[0] = 8'h01;
-//    FRAME[1] = 8'h06;
-//    FRAME[2] = 8'h00;
-//    FRAME[3] = 8'h01;
-//    FRAME[4] = 8'h00;
-//    FRAME[5] = 8'h05;
-//    FRAME[6] = 8'h18;
-//    FRAME[7] = 8'h09;
-    FRAME[0] = 8'h01;
-    FRAME[1] = 8'h06;
-    FRAME[2] = 8'h00;
-    FRAME[3] = 8'h02; // illegal
-    FRAME[4] = 8'h00;
-    FRAME[5] = 8'h05;
-    FRAME[6] = 8'he8;
-    FRAME[7] = 8'h09;
-    test = 1;
-    #(`clk_period*1)
-    test = 0;
-    
-    @(posedge response_done)
-    #(`clk_period*20000)
-    FRAME[0] = 8'h01;
-    FRAME[1] = 8'h04;
-    FRAME[2] = 8'h00;
-    FRAME[3] = 8'h01;
-    FRAME[4] = 8'h00;
-    FRAME[5] = 8'h04;
-    FRAME[6] = 8'ha0;
-    FRAME[7] = 8'h09;
-    test = 1;
-    #(`clk_period*1)
-    test = 0;
-    
-    @(posedge response_done)
-    #(`clk_period*20000)
-    FRAME[0] = 8'h01;
-    FRAME[1] = 8'h06;
-    FRAME[2] = 8'h00;
-    FRAME[3] = 8'h01;
-    FRAME[4] = 8'h00;
-    FRAME[5] = 8'h03;
-    FRAME[6] = 8'h98;
-    FRAME[7] = 8'h0b;
-    test = 1;
-    #(`clk_period*1)
-    test = 0;
-    
-    @(posedge response_done)
-    #(`clk_period*20000)
-    FRAME[0] = 8'h01;
-    FRAME[1] = 8'h06;
-    FRAME[2] = 8'h00;
-    FRAME[3] = 8'h01;
-    FRAME[4] = 8'h00;
-    FRAME[5] = 8'h07;
-    FRAME[6] = 8'h99;
-    FRAME[7] = 8'hc8;
-    test = 1;
-    #(`clk_period*1)
-    test = 0;
 
-//    #(`clk_period*50)
-//    tx_data = 8'haa;
+    dev_addr = 8'h01;//变换设备地址
+    #(`clk_period*20000)  
+    send_frame(64'h01_03_0001_0001_d5ca);
+    @(posedge response_done)
 
-//    #(`clk_period*10)
-//    tx_start = 1;
+    #(`clk_period*20000)  
+    send_frame(64'h01_06_0002_0005_e809);// illegal  
+    @(posedge response_done)
 
-//    #(`clk_period*2)
-//    tx_start = 0;
-    //@(posedge rx_done)
-    //#(`clk_period*5000);
-	//$stop;	
+    #(`clk_period*20000)             
+    send_frame(64'h01_04_0001_0004_a009);     
+    @(posedge response_done)
+
+    #(`clk_period*20000)             
+    send_frame(64'h01_04_0001_0003_e1cb);     
+    @(posedge response_done)
+
+    #(`clk_period*20000)
+    send_frame(64'h01_04_0002_0001_900a);  
+    @(posedge response_done)
+
+    dev_addr = 8'hff;//变换设备地址
+    #(`clk_period*20000)
+    send_frame(64'hff_04_0002_0001_85d4);  
+    @(posedge response_done)
+
+    #(`clk_period*20000)             
+    send_frame(64'hff_04_0002_0002_c5d5);     
+    @(posedge response_done)
+
+    dev_addr = 8'h01;//变换设备地址
+    #(`clk_period*20000)             
+    send_frame(64'h01_04_0002_0003_11cb);     
+    @(posedge response_done)
+
+    #(`clk_period*20000)             
+    send_frame(64'h01_04_0003_0002_81cb);     
+    @(posedge response_done)
+
+    #(`clk_period*20000)             
+    send_frame(64'h01_04_0003_0003_400b);// illegal      
+    @(posedge response_done)
+  
+    #(`clk_period*20000)
+    send_frame(64'h01_06_0001_0007_99c8);  
+    @(posedge response_done)
+
+    #(`clk_period*20000)
+    send_frame(64'h01_03_0001_0001_d5ca);  
+    @(posedge response_done)
+
+    $display("simulation stop\n");
+
+    $stop;	
 end
 
-parameter   IDLE    = 8'b0000_0000;
-parameter   TX_S0   = 8'b0000_0001;
-parameter   TX_S1   = 8'b0000_0010;
-parameter   TX_S2   = 8'b0000_0100;
-parameter   TX_S3   = 8'b0000_1000;
-parameter   TX_S4   = 8'b0001_0000;
-parameter   TX_S5   = 8'b0010_0000;
-parameter   TX_S6   = 8'b0100_0000;
-parameter   TX_S7   = 8'b1000_0000;
-reg [7:0]   state;
-reg FF;
 
-always @(posedge sys_clk or negedge reset_n)
-begin
-    if(!reset_n)
-    begin
-        state<=IDLE;
-        FF<=1'b1;
-        TT<=1'b0;
+integer   i;
+parameter   BYTE_NUM = 8;
+task send_frame(input [8*BYTE_NUM-1:0] frame_data);
+	begin 
+        #(`clk_period*5);
+        for(i=BYTE_NUM;i>0;i=i-1)
+        begin
+            if(i!=BYTE_NUM)//发生第一个数据不需要检测tx_done
+            begin
+                @(negedge tx_done); 
+            end
+            #(`clk_period);
+            tx_start <=1'b1;
+            tx_data <= frame_data[(i*BYTE_NUM-1) -:8];//高8位
+            #(`clk_period);
+            tx_start <=1'b0;
+        end
+        #(`clk_period*50);
     end
-    else
-    begin
-        case(state)
-        IDLE:
-            begin
-                if(test)
-                begin
-                    state <= TX_S0;
-                    FF<=1'b1;
-                    TT<=1'b0;
-                end
-                else
-                begin
-                    state <= IDLE;
-                    FF<=1'b1;
-                    TT<=1'b0;
-                end
-            end
-        TX_S0:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[0];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S1;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S1:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[1];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S2;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S2:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[2];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S3;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S3:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[3];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S4;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S4:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[4];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S5;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S5:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[5];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S6;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S6:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[6];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= TX_S7;
-                    FF<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        TX_S7:
-            begin
-                if(FF)
-                begin
-                    tx_start <= 1'b1;
-                    tx_data <= FRAME[7];
-                    FF<=1'b0;
-                end
-                else if(tx_done)
-                begin
-                    state <= IDLE;
-                    FF<=1'b1;
-                    TT<=1'b1;
-                end
-                else
-                begin
-                    tx_start <= 1'b0;
-                end
-            end
-        default:
-            begin
-                state <= IDLE;
-            end
-        endcase
-    end
-end
+endtask
 
 endmodule
+
+
+
+/*
+checksum mismatch then do nothing//设备地址错误do nothing
+illegal fuction code retrun 01 
+illegal address return 02 //寄存器地址
+illegal quantity return 03 //数据长度或数量
+
+04功能码下共四个寄存器，如{DEV_ADDR,FUN_CODE,addr_data,CRC_L,CRC_H}
+addr代表从哪个寄存器开始，data代表读几个寄存器数据    
+
+读响应格式{DEV_ADDR，FUN_CODE，length,data,CRC_L,CRC_H}
+length为1Byte,data为2Byte
+
+写响应格式与发送写寄存器命令格式一致，相等
+
+读命令异常和写异常响应格式为{SADDR, func_code|8'h80, exception, crc_out[7:0], crc_out[15:8]}
+exception范围为01，02，03
+
+写失败响应格式为{SADDR, func_code|8'h80, 04, crc_out[7:0], crc_out[15:8]}
+
+*/

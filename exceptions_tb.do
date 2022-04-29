@@ -12,7 +12,8 @@ vlog -vlog01compat -work work {./uart_byte_rx.v}
 vlog -vlog01compat -work work {./ct_35t_gen.v}
 vlog -vlog01compat -work work {./ct_15t_gen.v}
 vlog -vlog01compat -work work {./frame_rx.v}
-vlog -vlog01compat -work work {./modbus_crc.v}
+vlog -vlog01compat -work work {./modbus_crc_16.v}
+vlog -vlog01compat -work work {./crc_16.v}
 vlog -vlog01compat -work work {./exceptions.v}
 vlog -vlog01compat -work work {./exceptions_tb.v}
 

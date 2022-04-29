@@ -12,6 +12,8 @@ vlog -vlog01compat -work work {./uart_byte_rx.v}
 vlog -vlog01compat -work work {./ct_35t_gen.v}
 vlog -vlog01compat -work work {./ct_15t_gen.v}
 vlog -vlog01compat -work work {./frame_rx.v}
+vlog -vlog01compat -work work {./modbus_crc_16.v}
+vlog -vlog01compat -work work {./crc_16.v}
 vlog -vlog01compat -work work {./frame_rx_tb.v}
 
 #simulate
@@ -21,6 +23,7 @@ vsim -voptargs="+acc" frame_rx_tb
 add wave -radix unsigned *
 add wave -position insertpoint sim:/frame_rx_tb/FRAME
 add wave -radix hexadecimal /frame_rx_tb/frame_rx_inst0/*
+add wave -radix hexadecimal /frame_rx_tb/u_modbus_crc_16/*
 #add wave -radix unsigned /frame_rx_tb/frame_rx_inst0/*
 view structure
 view signals

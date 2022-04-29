@@ -20,8 +20,8 @@ uart_byte_tx #
     .BAUD_RATE      ('d115200       )
 )uart_byte_tx_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .tx_start       (tx_start       ),	// start with pos edge
     .tx_data        (tx_data        ),	// data need to transfer
     .tx_done        (tx_done        ),  // transfer done
@@ -39,8 +39,8 @@ uart_byte_rx #
     .BAUD_RATE      ('d115200       )
 )uart_byte_rx_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .rx_data        (rx_data        ),	// data need to transfer
     .rx_done        (rx_done        ),  // transfer done
     .rx_state       (rx_state       ),  // sending duration
@@ -54,8 +54,8 @@ ct_35t_gen #
     .BAUD_RATE      ('d115200       )
 )ct_35t_gen_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .rx_done        (rx_done        ),  // transfer done
     .rx_state       (rx_state       ),  // sending duration
     .rx_new_frame   (rx_new_frame   )

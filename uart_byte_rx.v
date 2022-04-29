@@ -7,12 +7,12 @@ module uart_byte_rx #
     parameter           BAUD_RATE  = 'd9600    //
 )
 (
-    input               clk_in,			// system clock
-    input               rst_n_in,		// system reset, active low
+    input               clk     ,			// system clock
+    input               rst_n   ,		// system reset, active low
 
-    output  reg [7:0]   rx_data,		// data need to transfer
+    output  reg [7:0]   rx_data ,		// data need to transfer
     output  reg         rx_state,       // recieving duration
-    output	reg         rx_done,        // pos-pulse for 1 tick indicates 1 byte transfer done
+    output	reg         rx_done ,        // pos-pulse for 1 tick indicates 1 byte transfer done
     input		        rs232_rx		// uart transfer pin
 );
 
@@ -27,8 +27,8 @@ reg [7:0] bps_cnt;
 
 reg	rs232_rx0,rs232_rx1,rs232_rx2;	
 //Detect negedge of rs232_rx
-always @ (posedge clk_in or negedge rst_n_in) begin
-	if(!rst_n_in) begin
+always @ (posedge clk or negedge rst_n) begin
+	if(!rst_n) begin
 		rs232_rx0 <= `UD 1'b0;
 		rs232_rx1 <= `UD 1'b0;
 		rs232_rx2 <= `UD 1'b0;
@@ -38,12 +38,12 @@ always @ (posedge clk_in or negedge rst_n_in) begin
 		rs232_rx2 <= `UD rs232_rx1;
 	end
 end
+wire	neg_rs232_rx;
+assign  neg_rs232_rx = rs232_rx2 & ~rs232_rx1;	
 
-wire	neg_rs232_rx = rs232_rx2 & rs232_rx1 & (~rs232_rx0) & (~rs232_rx);	
-
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in)
+	if(!rst_n)
     begin
 		rx_state <= `UD 1'b0;
     end
@@ -65,9 +65,9 @@ begin
 end
 
 reg [15:0]  baud_rate_cnt;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)
+    if(!rst_n)
     begin
         baud_rate_cnt <= `UD 16'd0;
     end
@@ -93,15 +93,15 @@ end
     
 // generate bps_clk signal
 reg bps_clk;
-always @ (posedge clk_in or negedge rst_n_in)
+always @ (posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in) 
+	if(!rst_n) 
     begin
 		bps_clk <= `UD 1'b0;
     end
 	else
-    begin
-        if(baud_rate_cnt == 16'd1 )
+    begin 
+        if(baud_rate_cnt == BPS_PARAM>>1 )//sample in cnt center
         begin
 		    bps_clk <= `UD 1'b1;	
         end
@@ -114,19 +114,19 @@ end
 
 //bps counter
 
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if(!rst_n_in)	
+    if(!rst_n)	
     begin
 	    bps_cnt <= `UD 8'd0;
     end
     else
     begin
-        if(bps_cnt>=8'd159 || (bps_cnt == 8'd12 && (START_BIT > 2))) // at least 3 of 6 samples are 1, START_BIT not ok
+        if(bps_cnt == 8'd159 || (bps_cnt == 8'd12 && (START_BIT > 2))) 
         begin
 	        bps_cnt <= `UD 8'd0;
         end
-        else if(bps_clk)
+        else if(baud_rate_cnt >= BPS_PARAM - 1'b1 )
         begin
 	        bps_cnt <= `UD bps_cnt + 1'b1;
         end
@@ -137,9 +137,9 @@ begin
     end
 end
 
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in)
+	if(!rst_n)
     begin
 		rx_done <= `UD 1'b0;
     end
@@ -158,9 +158,9 @@ end
 
 
 		
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in)
+	if(!rst_n)
     begin
 		START_BIT <= `UD 3'd0;
 		rx_data_r[0] <= `UD 3'd0;
@@ -195,43 +195,43 @@ begin
             // sample form 6 to 11 is the middle 6 of 16 bps_clk
 			6,7,8,9,10,11:
             begin
-                START_BIT <= `UD START_BIT + rs232_rx1;
+                START_BIT <= `UD START_BIT + rs232_rx2;
             end
 			22,23,24,25,26,27:
             begin
-                rx_data_r[0] <= `UD rx_data_r[0] + rs232_rx1;
+                rx_data_r[0] <= `UD rx_data_r[0] + rs232_rx2;
             end
 			38,39,40,41,42,43:
             begin
-                rx_data_r[1] <= `UD rx_data_r[1] + rs232_rx1;
+                rx_data_r[1] <= `UD rx_data_r[1] + rs232_rx2;
             end
 			54,55,56,57,58,59:
             begin
-                rx_data_r[2] <= `UD rx_data_r[2] + rs232_rx1;
+                rx_data_r[2] <= `UD rx_data_r[2] + rs232_rx2;
             end
 			70,71,72,73,74,75:
             begin
-                rx_data_r[3] <= `UD rx_data_r[3] + rs232_rx1;
+                rx_data_r[3] <= `UD rx_data_r[3] + rs232_rx2;
             end
 			86,87,88,89,90,91:
             begin
-                rx_data_r[4] <= `UD rx_data_r[4] + rs232_rx1;
+                rx_data_r[4] <= `UD rx_data_r[4] + rs232_rx2;
             end
 			102,103,104,105,106,107:
             begin
-                rx_data_r[5] <= `UD rx_data_r[5] + rs232_rx1;
+                rx_data_r[5] <= `UD rx_data_r[5] + rs232_rx2;
             end
 			118,119,120,121,122,123:
             begin
-                rx_data_r[6] <= `UD rx_data_r[6] + rs232_rx1;
+                rx_data_r[6] <= `UD rx_data_r[6] + rs232_rx2;
             end
 			134,135,136,137,138,139:
             begin
-                rx_data_r[7] <= `UD rx_data_r[7] + rs232_rx1;
+                rx_data_r[7] <= `UD rx_data_r[7] + rs232_rx2;
             end
 			150,151,152,153,154,155:
             begin
-                STOP_BIT <= `UD STOP_BIT + rs232_rx1;
+                STOP_BIT <= `UD STOP_BIT + rs232_rx2;
             end
 			default:
 			begin
@@ -251,15 +251,15 @@ begin
 	end
 end
 
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-	if(!rst_n_in)
+	if(!rst_n)
     begin
 		rx_data <= `UD 8'd0;
     end
 	else
     begin
-        if(bps_cnt >= 8'd159)
+        if(bps_cnt == 8'd159)
         begin
             // rx_data_r[x] has 3 width, actual sample sum range 0~6, rx_data_r[x][2] means sum/4
             // if sum >=4 sample value == 1, else sum < 4 sample value == 0
@@ -274,5 +274,6 @@ begin
 	    end
     end
 end
+
 
 endmodule

@@ -1,59 +1,51 @@
 `timescale 1ns / 1ns
 `define UD #1
 
-module func_hander #
+module func_hander 
 (
-    parameter           SADDR   = 8'h01
-)
-(
-    input               clk_in,			// system clock
-    input               rst_n_in,		// system reset, active low
+    input               clk             ,// system clock
+    input               rst_n           ,// system reset, active low
     
-    input               rx_message_done,
-    input   [7:0]       func_code,
-    input   [15:0]      addr,
-    input   [15:0]      data,
-    input   [15:0]      crc_rx_code,
+    input   [7:0]       dev_addr        ,
+    input               rx_message_done ,
+    input   [7:0]       func_code       ,
+    input   [15:0]      addr            ,
+    input   [15:0]      data            ,
+    input   [15:0]      crc_rx_code     ,
     
-    input               exception_done,
-    input   [7:0]       exception_in,
+    input               exception_done  ,
+    input   [7:0]       exception_in    ,
     
-    input   [15:0]      read_03_01,
-    input   [15:0]      read_04_01,
-    input   [15:0]      read_04_02,
-    input   [15:0]      read_04_03,
-    input   [15:0]      read_04_04,
+    input   [15:0]      read_03_01      ,
+    input   [15:0]      read_04_01      ,
+    input   [15:0]      read_04_02      ,
+    input   [15:0]      read_04_03      ,
+    input   [15:0]      read_04_04      ,
     
-    output  reg [7:0]   tx_quantity,
-//    output  reg         tx_start,
-    output  reg [7:0]   exception_out,
+    output  reg [7:0]   tx_quantity     ,
+    output  reg [7:0]   exception_out   ,
     
-    output  reg [7:0]   func_code_r,
-    output  reg [15:0]  addr_r,
-    output  reg [15:0]  data_r,
-    output  reg [15:0]  crc_rx_code_r,
+    output  reg [7:0]   func_code_r     ,
+    output  reg [15:0]  addr_r          ,
+    output  reg [15:0]  data_r          ,
+    output  reg [15:0]  crc_rx_code_r   ,
     
-    output  reg         dpram_wen,
-    output  reg [7:0]   dpram_addr,
-    output  reg [15:0]  dpram_wdata,
-    
-    output  reg         reg_wen,
-    output  reg [15:0]  reg_wdat,
-    input               reg_w_done,
-    input               reg_w_status,
+    output  reg         dpram_wen       ,
+    output  reg [7:0]   dpram_addr      ,
+    output  reg [15:0]  dpram_wdata     ,   
+    output  reg         reg_wen         ,
+    output  reg [15:0]  reg_wdat        ,
+    input               reg_w_done      ,
+    input               reg_w_status    ,
     
     output  reg         handler_done
    
     
 );
 
-//reg [7:0]   func_code_r;
-//reg [15:0]  addr_r;
-//reg [15:0]  data_r;
-//reg [15:0]  crc_rx_code_r;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if( !rst_n_in )
+    if( !rst_n )
     begin
         func_code_r <= `UD 8'h0;
         addr_r <= `UD 16'h0;
@@ -69,20 +61,13 @@ begin
             data_r <= `UD data;
             crc_rx_code_r <= `UD crc_rx_code; 
         end
-//        else if(handler_done)
-//        begin
-//            func_code_r <= `UD 8'h0;
-//            addr_r <= `UD 16'h0;
-//            data_r <= `UD 16'b0;
-//            crc_rx_code_r <= `UD 16'b0;
-//        end
     end
 end
 
 reg [7:0]   exception_in_r;
-always@(posedge clk_in or negedge rst_n_in)
+always@(posedge clk or negedge rst_n)
 begin
-    if( !rst_n_in )
+    if( !rst_n )
     begin
         exception_in_r <= `UD 8'h0;
     end
@@ -104,10 +89,10 @@ reg [7:0]   sub_state_03;
 reg [7:0]   sub_state_04;
 reg [7:0]   sub_state_06;
 reg         FF;
-reg [15:0]   raddr_index;
-always@(posedge clk_in or negedge rst_n_in)
+reg [15:0]  raddr_index;
+always@(posedge clk or negedge rst_n)
 begin
-    if( !rst_n_in )
+    if( !rst_n )
     begin
         op_state <= `UD 8'h0;
         FF <= `UD 1'b1;
@@ -202,7 +187,7 @@ begin
                 case(sub_state_03)
                 8'd0:
                 begin
-                    if(addr_r==16'h00001)
+                    if(addr_r==16'h0001)
                     begin
                         dpram_addr <= `UD 8'h00;
                         dpram_wdata <= `UD read_03_01;
@@ -242,11 +227,11 @@ begin
                     sub_state_04 <= `UD 8'd1;
                 end
                 8'd1:
-                begin
-                    if(raddr_index < addr_r + data_r) // 1,2,3,4 < 5
+                begin                              
+                    if(raddr_index < addr_r + data_r) 
                     begin
                         dpram_addr <= `UD (raddr_index-addr_r);
-                        case(raddr_index)
+                        case(raddr_index)                 
                         8'h1:dpram_wdata <= `UD read_04_01;
                         8'h2:dpram_wdata <= `UD read_04_02;
                         8'h3:dpram_wdata <= `UD read_04_03;
@@ -254,12 +239,13 @@ begin
                         default;
                         endcase
                         raddr_index <= `UD raddr_index + 1'b1;
+                        sub_state_04 <= `UD 8'd1;
                     end
                     else
                     begin
                         sub_state_04 <= `UD 8'd2;
                     end
-                end
+                end 
                 8'd2:
                 begin
                     op_state <= `UD 8'd5;
@@ -290,7 +276,7 @@ begin
                 case(sub_state_06)
                 8'd0:
                 begin
-                    if(addr_r==16'h00001)
+                    if(addr_r==16'h0001)
                     begin
                         reg_wen <= `UD 1'b0;
                         sub_state_06 <= `UD 8'd1;
@@ -357,17 +343,4 @@ begin
     end
 end
 
-/*
-always@(posedge clk_in or negedge rst_n_in)
-begin
-    if( !rst_n_in )
-    begin
-        
-    end
-    else
-    begin
-        
-    end
-end
-*/
 endmodule

@@ -20,8 +20,8 @@ uart_byte_tx #
     .BAUD_RATE      ('d115200       )
 )uart_byte_tx_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .tx_start       (tx_start       ),	// start with pos edge
     .tx_data        (tx_data        ),	// data need to transfer
     .tx_done        (tx_done        ),  // transfer done

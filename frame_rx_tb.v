@@ -11,6 +11,7 @@ reg tx_start;
 reg [7:0] tx_data;
 wire tx_state;
 wire tx_done;
+reg     [7:0]   dev_addr;
 
 reg test;
 
@@ -20,8 +21,8 @@ uart_byte_tx #
     .BAUD_RATE      ('d115200       )
 )uart_byte_tx_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .tx_start       (tx_start       ),	// start with pos edge
     .tx_data        (tx_data        ),	// data need to transfer
     .tx_done        (tx_done        ),  // transfer done
@@ -39,8 +40,8 @@ uart_byte_rx #
     .BAUD_RATE      ('d115200       )
 )uart_byte_rx_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .rx_data        (rx_data        ),	// data need to transfer
     .rx_done        (rx_done        ),  // transfer done
     .rx_state       (rx_state       ),  // sending duration
@@ -54,8 +55,8 @@ ct_35t_gen #
     .BAUD_RATE      ('d115200       )
 )ct_35t_gen_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .rx_done        (rx_done        ),  // transfer done
     .rx_state       (rx_state       ),  // sending duration
     .rx_new_frame   (rx_new_frame   )
@@ -68,8 +69,8 @@ ct_15t_gen #
     .BAUD_RATE      ('d115200       )
 )ct_15t_gen_inst0
 (
-    .clk_in         (sys_clk        ),  // system clock
-    .rst_n_in       (reset_n        ),  // system reset, active low
+    .clk            (sys_clk        ),  // system clock
+    .rst_n          (reset_n        ),  // system reset, active low
     .rx_done        (rx_done        ),  // transfer done
     .rx_state       (rx_state       ),  // sending duration
     .rx_drop_frame  (rx_drop_frame  )
@@ -80,22 +81,55 @@ wire [7:0] func_code;
 wire [15:0] addr;
 wire [15:0] data;
 wire [15:0] crc_rx_code;
-frame_rx #
+wire         rx_crc_vld     ;
+wire         rx_crc_error   ; 
+wire         rx_crc_done    ;
+frame_rx frame_rx_inst0
 (
-    .ADDR           (8'h01          )
-)frame_rx_inst0
-(
-    .clk_in         (sys_clk        ), // system clock
-    .rst_n_in 		(reset_n        ), // system reset, active low
+    .clk            (sys_clk        ), // system clock
+    .rst_n          (reset_n        ), // system reset, active low
+    .dev_addr       (dev_addr       ),
     .rx_drop_frame  (rx_drop_frame  ), // 1.5T interval
     .rx_new_frame   (rx_new_frame   ), // 3.5T interval
     .rx_done        (rx_done        ), // 
     .rx_data        (rx_data        ), //
+    .rx_crc_error   (rx_crc_error   ),
+    .rx_crc_done    (rx_crc_done    ),
+    .rx_crc_vld     (rx_crc_vld     ),
     .rx_message_done(rx_message_done),
     .func_code      (func_code      ),
     .addr           (addr           ),
     .data           (data           ),
     .crc_rx_code    (crc_rx_code    )
+);
+
+wire  [39:0]    exception_seq     ;
+wire  [63:0]    code06_response   ;
+wire  [103:0]   code03_04_response;
+modbus_crc_16  u_modbus_crc_16( 
+    .clk		(sys_clk           ),
+    .rst_n	        (reset_n           ),
+    .dev_addr           (dev_addr          ),
+    .func_code          (func_code         ),
+    .addr               (addr              ),
+    .data               (data              ),
+    .crc_rx_code        (crc_rx_code       ),
+    .rx_crc_vld         (rx_crc_vld        ),
+    .rx_crc_error       (rx_crc_error      ),
+    .rx_crc_done	(rx_crc_done       ),
+
+    .tx_quantity        (tx_quantity       ),
+    .rd_dpram_data      (tx_data_b         ),
+    .rd_dpram_addr      (tx_addr           ),
+
+    .handler_done       (handler_done      ),
+    .exception          (exception_out     ),
+    .tx_06_rp_start     (tx_06_rp_start    ),	
+    .tx_exp_rp_start    (tx_exp_rp_start   ),	
+    .tx_03_04_rp_start  (tx_03_04_rp_start ),
+    .exception_seq      (exception_seq     ),
+    .code06_response    (code06_response   ),
+    .code03_04_response (code03_04_response)
 );
 
 initial sys_clk = 1;
@@ -113,6 +147,7 @@ begin
     test = 0;
     
     #(`clk_period*50)
+    dev_addr = 8'h01;
     FRAME[0] = 8'h01;
     FRAME[1] = 8'h03;
     FRAME[2] = 8'h00;
